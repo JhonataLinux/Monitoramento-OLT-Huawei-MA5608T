@@ -4,8 +4,8 @@ Dashboard de monitoramento para OLT Huawei MA5608T utilizando
 Zabbix, SNMP e Grafana.
 
 
-(<img width="1365" height="554" alt="olt" src="https://github.com/user-attachments/assets/b2ef0f41-23f3-4b42-8b59-0745b4f0022c" />
-)
+<img width="1365" height="554" alt="olt" src="https://github.com/user-attachments/assets/b2ef0f41-23f3-4b42-8b59-0745b4f0022c" />
+
 
 ## Monitoramento
 
