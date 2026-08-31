@@ -4,6 +4,8 @@ Dashboard de monitoramento para OLT Huawei MA5608T utilizando Zabbix, SNMP e Gra
 
 ## 📊 Sobre o projeto
 
+![Dashboard Huawei MA5608T](screenshots/dashboard-overview.png)
+
 Este projeto foi desenvolvido para monitoramento de uma OLT Huawei MA5608T, permitindo acompanhar métricas operacionais e de hardware através do Zabbix e visualizar os dados em um dashboard no Grafana.
 
 ### Principais métricas monitoradas
