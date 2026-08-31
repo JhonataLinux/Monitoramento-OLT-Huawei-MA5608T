@@ -1,0 +1,219 @@
+zabbix_export:
+  version: "6.0"
+  date: "2023-12-04T01:11:35Z"
+  groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 0e5b9b09a8cd4709b3a52398e3be36ae
+      template: "Template OLT Huawei Gpon - I7"
+      name: "Template OLT Huawei Gpon - I7"
+      description: |
+        Desenvolvido por: JhonataLinux
+        Autor: Jhonatan Bernardino
+      groups:
+        - name: Templates
+      items:
+        - uuid: 63cb6c8fb4184ec5a59bca573fa300a5
+          name: Uptime
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.3.0
+          key: 1.3.6.1.2.1.1.3.0
+          units: uptime
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - "0.01"
+          tags:
+            - tag: Uptime
+        - uuid: aa5b832f16734a378ef627a817c1b507
+          name: "Total ONUs Desprovisionadas"
+          type: EXTERNAL
+          key: 'desprovisionadas["{$SNMP_COMMUNITY}","{HOST.CONN}",{$SNMP_PORTA}]'
+          delay: 5m
+          tags:
+            - tag: Application
+              value: Geral
+      discovery_rules:
+        - uuid: b8e6120088f843e0a5e32e945fad9da8
+          name: "Descoberta de Interfaces Geral"
+          type: SNMP_AGENT
+          snmp_oid: "discovery[{#IFOPERSTATUS},1.3.6.1.2.1.2.2.1.8,{#IFADMINSTATUS},1.3.6.1.2.1.2.2.1.7,{#IFALIAS},1.3.6.1.2.1.31.1.1.1.18,{#IFNAME},1.3.6.1.2.1.31.1.1.1.1,{#IFDESCR},1.3.6.1.2.1.2.2.1.2,{#IFTYPE},1.3.6.1.2.1.2.2.1.3]"
+          key: descoberta.interfaces.b
+          delay: 1h
+          filter:
+            conditions:
+              - macro: "{#IFNAME}"
+                value: GPON|ethernet
+                formulaid: A
+          item_prototypes:
+            - uuid: 840e068651484fdba14b7542fa00b401
+              name: "Interface {#IFNAME}({#IFALIAS}): Bits received"
+              type: SNMP_AGENT
+              snmp_oid: "1.3.6.1.2.1.31.1.1.1.6.{#SNMPINDEX}"
+              key: "net.if.in[ifHCInOctets.{#SNMPINDEX}]"
+              delay: 5m
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ""
+                - type: MULTIPLIER
+                  parameters:
+                    - "8"
+              tags:
+                - tag: Application
+                  value: "Network Interfaces"
+            - uuid: 4d8508dcb41d48729031994effa054b7
+              name: "Interface {#IFNAME}({#IFALIAS}): Bits sent"
+              type: SNMP_AGENT
+              snmp_oid: "1.3.6.1.2.1.31.1.1.1.10.{#SNMPINDEX}"
+              key: "net.if.out[ifHCOutOctets.{#SNMPINDEX}]"
+              delay: 5m
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ""
+                - type: MULTIPLIER
+                  parameters:
+                    - "8"
+              tags:
+                - tag: Application
+                  value: "Network Interfaces"
+        - uuid: b4b546e7e6d04dfd85ba8215ec0c57f7
+          name: "Descoberta de Interfaces Ethernet"
+          type: SNMP_AGENT
+          snmp_oid: "discovery[{#IFOPERSTATUS},1.3.6.1.2.1.2.2.1.8,{#IFADMINSTATUS},1.3.6.1.2.1.2.2.1.7,{#IFALIAS},1.3.6.1.2.1.31.1.1.1.18,{#IFNAME},1.3.6.1.2.1.31.1.1.1.1,{#IFDESCR},1.3.6.1.2.1.2.2.1.2,{#IFTYPE},1.3.6.1.2.1.2.2.1.3]"
+          key: descoberta.interfaces.uplinks.i7
+          delay: 1d
+          filter:
+            conditions:
+              - macro: "{#IFNAME}"
+                value: ethernet
+                formulaid: A
+          item_prototypes:
+            - uuid: cfc914fc9aef489f8d89d07c1584c3eb
+              name: "Interface {#IFNAME}({#IFALIAS}): Operational status"
+              type: SNMP_AGENT
+              snmp_oid: "1.3.6.1.2.1.2.2.1.8.{#SNMPINDEX}"
+              key: "net.if.status[ifOperStatus.uplinks.{#SNMPINDEX}]"
+              history: 7d
+              trends: "0"
+              tags:
+                - tag: "Network Interfaces Eth Status"
+              trigger_prototypes:
+                - uuid: dc611e2e61b64cf3b482adab64dea009
+                  expression: |
+                    last(/Template OLT Huawei Gpon - I7/net.if.status[ifOperStatus.uplinks.{#SNMPINDEX}])=2
+                    and
+                    (last(/Template OLT Huawei Gpon - I7/net.if.status[ifOperStatus.uplinks.{#SNMPINDEX}],#1)
+                    <>
+                    last(/Template OLT Huawei Gpon - I7/net.if.status[ifOperStatus.uplinks.{#SNMPINDEX}],#2))
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: "last(/Template OLT Huawei Gpon - I7/net.if.status[ifOperStatus.uplinks.{#SNMPINDEX}])<>2"
+                  name: "Interface {#IFNAME}({#IFALIAS}): Link down"
+                  priority: HIGH
+                  manual_close: "YES"
+        - uuid: 786fae9eb87d428ab410736c205abfba
+          name: "Descoberta de CPUs"
+          type: SNMP_AGENT
+          snmp_oid: "discovery[{#OLTCPU},1.3.6.1.4.1.2011.2.6.7.1.1.2.1.5.0]"
+          key: descobertas.cpu.gpon.b
+          delay: 1d
+          item_prototypes:
+            - uuid: 8025f2d708284a59a5e2590d574a43f9
+              name: "Slot {#SNMPINDEX}: CPU"
+              type: SNMP_AGENT
+              snmp_oid: "1.3.6.1.4.1.2011.2.6.7.1.1.2.1.5.0.{#SNMPINDEX}"
+              key: "CPU[{#SNMPINDEX}]"
+              value_type: FLOAT
+              units: "%"
+              tags:
+                - tag: Application
+                  value: CPU
+        - uuid: 58f4b121a91240f6a8eb33151c0fc625
+          name: "Descoberta de PONs"
+          type: SNMP_AGENT
+          snmp_oid: "discovery[{#OLTGPON},1.3.6.1.2.1.31.1.1.1.1]"
+          key: descobertas.portas.pon.b
+          delay: 1h
+          filter:
+            conditions:
+              - macro: "{#OLTGPON}"
+                value: GPON
+                formulaid: A
+          item_prototypes:
+            - uuid: 0f075c5b9b204893b69824a0febf81fa
+              name: "PON {#OLTGPON}"
+              type: EXTERNAL
+              key: 'pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: "ONUs ON"
+              trigger_prototypes:
+                - uuid: 9c9110ee19554583a44a2de9abb9c933
+                  expression: |
+                    ((last(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}],#2)+0.1)
+                    - last(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}]))
+                    /
+                    (last(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}],#2)+0.1)*100>=50
+                    and
+                    change(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}])<=-10
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: |
+                    ((last(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}],#2)+0.1)
+                    - last(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}]))
+                    /
+                    (last(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}],#2)+0.1)*100<=50
+                    and
+                    last(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}])>=
+                    avg(/Template OLT Huawei Gpon - I7/pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","1",{$SNMP_PORTA}],12h)
+                  name: "Possível Queda Massiva de ONUs Onlines (-50%): {#OLTGPON}"
+                  priority: AVERAGE
+                  manual_close: "YES"
+                  dependencies:
+                    - name: "Possível Queda de Interface: {#OLTGPON} Down"
+                      expression: |
+                        last(/Template OLT Huawei Gpon - I7/ramal.status[{#SNMPINDEX}.{#OLTGPON}])=2
+                        and
+                        last(/Template OLT Huawei Gpon - I7/ramal.status[{#SNMPINDEX}.{#OLTGPON}],#2)<>2
+                      recovery_expression: "last(/Template OLT Huawei Gpon - I7/ramal.status[{#SNMPINDEX}.{#OLTGPON}])<>2"
+            - uuid: 2cbe0f3a2d10466cb6adef4a6e6cc2ff
+              name: "PON {#OLTGPON}"
+              type: EXTERNAL
+              key: 'pon["{$SNMP_COMMUNITY}","{HOST.CONN}","{#SNMPINDEX}","2",{$SNMP_PORTA}]'
+              delay: 5m
+              tags:
+                - tag: Application
+                  value: "ONUs OFF"
+            - uuid: eb1f410927e349969ba7d27d9bdf9a1a
+              name: "PON {#OLTGPON}"
+              type: SNMP_AGENT
+              snmp_oid: "1.3.6.1.4.1.2011.6.128.1.1.2.21.1.16.{#SNMPINDEX}"
+              key: "ramal.autorizadas[{#SNMPINDEX}.{#OLTGPON}]"
+              tags:
+                - tag: Application
+                  value: "ONUs Autorizadas"
+            - uuid: 435e6a3a25c245ae8736b33cb64d60fb
+              name: "PON {#OLTGPON}"
+              type: SNMP_AGENT
+              snmp_oid: "1.3.6.1.4.1.2011.6.128.1.1.2.21.1.10.{#SNMPINDEX}"
+              key: "ramal.status[{#SNMPINDEX}.{#OLTGPON}]"
+              tags:
+                - tag: Application
+                  value: "PON Status"
+              trigger_prototypes:
+                - uuid: cd3bf0da11e04cadba25dbb19a1bc60e
+                  expression: |
+                    last(/Template OLT Huawei Gpon - I7/ramal.status[{#SNMPINDEX}.{#OLTGPON}])=2
+                    and
+                    last(/Template OLT Huawei Gpon - I7/ramal.status[{#SNMPINDEX}.{#OLTGPON}],#2)<>2
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: "last(/Template OLT Huawei Gpon - I7/ramal.status[{#SNMPINDEX}.{#OLTGPON}])<>2"
+                  name: "Possível Queda de Interface: {#OLTGPON} Down"
+                  priority: AVERAGE
+                  manual_close: "YES"
+      tags:
+        - tag: "JhonataLinux"
