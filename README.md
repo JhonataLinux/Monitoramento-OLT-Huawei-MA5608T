@@ -4,7 +4,8 @@ Dashboard de monitoramento para OLT Huawei MA5608T utilizando Zabbix, SNMP e Gra
 
 ## 📊 Sobre o projeto
 
-![Dashboard Huawei MA5608T]
+## Dashboard Huawei MA5608T
+
 (<img width="1365" height="554" alt="dashboard-overview png" src="https://github.com/user-attachments/assets/03b658b1-d20e-4bea-8992-7437e1082435" />
 )
 
