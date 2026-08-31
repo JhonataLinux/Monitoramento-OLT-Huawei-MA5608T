@@ -1,12 +1,10 @@
-# Monitoramento-OLT-Huawei-MA5608T
-monitoramento de OLT Huawei com Zabbix + Grafana.
-
 # Huawei MA5608T Monitoring — Zabbix + Grafana
 
 Dashboard de monitoramento para OLT Huawei MA5608T utilizando
 Zabbix, SNMP e Grafana.
 
-![Dashboard](screenshots/dashboard-overview.png)
+![Dashboard](<img width="1365" height="554" alt="olt" src="https://github.com/user-attachments/assets/b2ef0f41-23f3-4b42-8b59-0745b4f0022c" />
+)
 
 ## Monitoramento
 
